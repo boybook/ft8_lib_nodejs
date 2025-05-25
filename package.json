@@ -16,6 +16,7 @@
     "info": "node-pre-gyp info",
     "test": "node test/test.mjs",
     "test:esm": "node examples/quickstart.mjs",
+    "test:both": "npm run test && npm run test:esm",
     "prepublishOnly": "npm run test:both",
     "prepack": "npm run build"
   },
@@ -45,7 +46,7 @@
     "url": "https://github.com/boybook/ft8_lib_nodejs.git"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "os": [
     "linux",
