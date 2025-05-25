@@ -1,0 +1,138 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [16, 18, 20]
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: win32
+          - os: macos-latest
+            platform: darwin
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+
+    - name: Install dependencies (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        npm install --global windows-build-tools
+      continue-on-error: true
+
+    - name: Install dependencies (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        # Xcode command line tools should already be installed
+
+    - name: Cache node modules
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
+
+    - name: Install npm dependencies
+      run: npm ci
+
+    - name: Build native module
+      run: npm run rebuild
+
+    - name: Run tests
+      run: npm run test:both
+
+    - name: Package binary
+      if: matrix.node-version == 18
+      run: npm run package
+
+    - name: Upload binary artifacts
+      if: matrix.node-version == 18
+      uses: actions/upload-artifact@v3
+      with:
+        name: binary-${{ matrix.platform }}
+        path: build/stage/**/*.tar.gz
+
+  publish:
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: ./artifacts
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Upload binaries to GitHub Release
+      env:
+        NODE_PRE_GYP_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Install node-pre-gyp-github for uploading to GitHub releases
+        npm install -g @mapbox/node-pre-gyp @mapbox/node-pre-gyp-github
+        
+        # Upload each platform's binary to GitHub release
+        for platform_dir in artifacts/binary-*; do
+          if [ -d "$platform_dir" ]; then
+            platform=$(basename $platform_dir | sed 's/binary-//')
+            echo "Uploading binaries for platform: $platform"
+            for tarball in $platform_dir/*.tar.gz; do
+              if [ -f "$tarball" ]; then
+                echo "Uploading: $tarball"
+                node-pre-gyp-github publish --release_tag_name=${{ github.event.release.tag_name }}
+              fi
+            done
+          fi
+        done
+
+    - name: Publish to npm
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      run: npm publish

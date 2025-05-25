@@ -169,7 +169,7 @@ export interface CallsignHashInterface {
 /**
  * FT8/FT4 Message encoder class
  */
-export declare class MessageEncoder {
+declare class MessageEncoder {
   /**
    * Create a new message encoder
    * @param config Encoder configuration
@@ -209,7 +209,7 @@ export declare class MessageEncoder {
 /**
  * FT8/FT4 Message decoder class
  */
-export declare class MessageDecoder {
+declare class MessageDecoder {
   /**
    * Create a new message decoder
    * @param config Decoder configuration
@@ -248,7 +248,7 @@ export declare class MessageDecoder {
 /**
  * Utility functions for FT8/FT4 operations
  */
-export declare namespace Utils {
+declare namespace Utils {
   /**
    * Get protocol constants
    * @param protocol The protocol (FT8 or FT4)
@@ -349,4 +349,22 @@ export declare namespace Utils {
      */
     function verifyCrc14(data: Uint8Array, expectedCrc: number): boolean;
   }
+}
+
+// Named exports
+export { MessageEncoder, MessageDecoder, Utils };
+
+// Default export interface for CommonJS compatibility
+declare const ft8lib: {
+  MessageEncoder: typeof MessageEncoder;
+  MessageDecoder: typeof MessageDecoder;
+  Utils: typeof Utils;
+};
+
+export default ft8lib;
+
+// Global module declaration for package name
+declare module "ft8-lib" {
+  export { MessageEncoder, MessageDecoder, Utils };
+  export default ft8lib;
 }

@@ -3,13 +3,21 @@
   "version": "1.0.0",
   "description": "Node.js C extension for FT8/FT4 digital mode encoding and decoding",
   "main": "index.js",
+  "module": "index.mjs",
   "types": "index.d.ts",
   "scripts": {
-    "install": "node-gyp rebuild",
-    "build": "node-gyp build",
-    "clean": "node-gyp clean",
-    "rebuild": "node-gyp rebuild",
-    "test": "node test/test.js"
+    "install": "node-pre-gyp install --fallback-to-build",
+    "build": "node-pre-gyp build",
+    "rebuild": "node-pre-gyp rebuild",
+    "clean": "node-pre-gyp clean",
+    "configure": "node-pre-gyp configure",
+    "package": "node-pre-gyp package",
+    "testpackage": "node-pre-gyp testpackage",
+    "info": "node-pre-gyp info",
+    "test": "node test/test.mjs",
+    "test:esm": "node examples/quickstart.mjs",
+    "prepublishOnly": "npm run test:both",
+    "prepack": "npm run build"
   },
   "keywords": [
     "ft8",
@@ -24,10 +32,12 @@
   "license": "MIT",
   "gypfile": true,
   "dependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.11",
     "node-addon-api": "^7.1.1"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
     "typescript": "^5.0.0"
   },
   "repository": {
@@ -45,5 +55,22 @@
   "cpu": [
     "x64",
     "arm64"
+  ],
+  "binary": {
+    "module_name": "ft8_lib",
+    "module_path": "./lib/binding/{configuration}/{node_abi}-{platform}-{arch}/",
+    "remote_path": "./releases/download/v{version}/",
+    "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz",
+    "host": "https://github.com/boybook/ft8_lib_nodejs"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "src/",
+    "ft8_lib/",
+    "binding.gyp",
+    "lib/",
+    "README.md",
+    "LICENSE"
   ]
 }

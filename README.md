@@ -44,6 +44,13 @@ This library provides a comprehensive Node.js interface to the FT8/FT4 digital m
 npm install ft8-lib
 ```
 
+The package includes pre-compiled binaries for:
+- **Windows**: x64, arm64
+- **macOS**: x64 (Intel), arm64 (Apple Silicon)
+- **Linux**: x64, arm64
+
+If a pre-compiled binary is not available for your platform, the package will automatically compile from source (requires build tools).
+
 ### Build from Source
 
 ```bash
@@ -56,8 +63,34 @@ npm run build
 
 ## Quick Start
 
+This library supports both CommonJS and ES module syntax for maximum compatibility.
+
+### CommonJS Usage
+
+```javascript
+const ft8 = require('ft8-lib');
+
+// Create encoder
+const encoder = new ft8.MessageEncoder();
+const decoder = new ft8.MessageDecoder();
+```
+
+### ES Module Usage
+
+```javascript
+// Named imports (recommended)
+import { MessageEncoder, MessageDecoder, Utils } from 'ft8-lib';
+
+// Default import
+import ft8 from 'ft8-lib';
+
+// Mixed imports
+import ft8, { MessageEncoder, MessageDecoder } from 'ft8-lib';
+```
+
 ### Basic Message Encoding
 
+**CommonJS:**
 ```javascript
 const ft8 = require('ft8-lib');
 
@@ -84,8 +117,36 @@ console.log(`Generated ${audioBuffer.samples.length} samples`);
 ft8.Utils.Audio.saveWav('output.wav', audioBuffer);
 ```
 
+**ES Module:**
+```javascript
+import { MessageEncoder, Utils } from 'ft8-lib';
+
+// Create encoder
+const encoder = new MessageEncoder();
+
+// Encode a CQ message
+const message = "CQ W1ABC FN42";
+const encoded = encoder.encode(message);
+console.log(`Encoded ${encoded.tones.length} tones`);
+
+// Generate audio
+const audioConfig = {
+    sampleRate: 12000,
+    frequency: 1500,    // Hz
+    protocol: 'FT8',
+    amplitude: 0.5
+};
+
+const audioBuffer = encoder.generateAudio(encoded.tones, audioConfig);
+console.log(`Generated ${audioBuffer.samples.length} samples`);
+
+// Save to WAV file
+Utils.Audio.saveWav('output.wav', audioBuffer);
+```
+
 ### Basic Message Decoding
 
+**CommonJS:**
 ```javascript
 const ft8 = require('ft8-lib');
 
@@ -94,6 +155,28 @@ const decoder = new ft8.MessageDecoder();
 
 // Load audio from WAV file
 const audioBuffer = ft8.Utils.Audio.loadWav('input.wav');
+
+// Decode messages
+const messages = decoder.decode(audioBuffer);
+
+messages.forEach((msg, i) => {
+    console.log(`Message ${i + 1}:`);
+    console.log(`  Text: "${msg.text}"`);
+    console.log(`  Frequency: ${msg.frequency.toFixed(1)} Hz`);
+    console.log(`  Time: ${msg.timeOffset.toFixed(3)} s`);
+    console.log(`  Score: ${msg.score}`);
+});
+```
+
+**ES Module:**
+```javascript
+import { MessageDecoder, Utils } from 'ft8-lib';
+
+// Create decoder
+const decoder = new MessageDecoder();
+
+// Load audio from WAV file
+const audioBuffer = Utils.Audio.loadWav('input.wav');
 
 // Decode messages
 const messages = decoder.decode(audioBuffer);
@@ -242,6 +325,66 @@ const type = ft8.Utils.Message.getMessageType("CQ W1ABC FN42", "FT8");
 // Returns: "STANDARD", "FREE_TEXT", etc.
 ```
 
+## Module System Support
+
+This library supports both CommonJS and ES modules to accommodate different project setups and coding preferences.
+
+### Using with CommonJS (Node.js default)
+
+Perfect for traditional Node.js projects and when you need `require()`:
+
+```javascript
+const ft8 = require('ft8-lib');
+const { MessageEncoder, MessageDecoder, Utils } = ft8;
+
+// Or destructure directly
+const { MessageEncoder, MessageDecoder, Utils } = require('ft8-lib');
+```
+
+### Using with ES Modules
+
+Ideal for modern JavaScript projects, TypeScript, and when using `import`:
+
+```javascript
+// Named imports (recommended for tree-shaking)
+import { MessageEncoder, MessageDecoder, Utils } from 'ft8-lib';
+
+// Default import
+import ft8 from 'ft8-lib';
+const { MessageEncoder, MessageDecoder, Utils } = ft8;
+
+// Mixed approach
+import ft8, { MessageEncoder } from 'ft8-lib';
+```
+
+### TypeScript Support
+
+Full TypeScript definitions are included for both module systems:
+
+```typescript
+import { MessageEncoder, DecodedMessage, AudioBuffer } from 'ft8-lib';
+
+const encoder = new MessageEncoder();
+const audioBuffer: AudioBuffer = encoder.encodeToAudio("CQ W1ABC FN42", {
+    sampleRate: 12000,
+    frequency: 1500,
+    protocol: 'FT8',
+    amplitude: 0.5
+});
+```
+
+### Package.json Configuration
+
+To use ES modules in your project, add this to your `package.json`:
+
+```json
+{
+  "type": "module"
+}
+```
+
+Or use `.mjs` file extensions for ES module files while keeping the rest as CommonJS.
+
 ## Examples
 
 ### Generate Test Signals
@@ -377,6 +520,40 @@ try {
     console.error('WAV loading error:', error.message);
 }
 ```
+
+## Running Examples
+
+The library includes several example files to demonstrate different usage patterns:
+
+### Available Examples
+
+1. **CommonJS Example**: `examples/quickstart.js`
+   ```bash
+   npm run test:cjs
+   # or
+   node examples/quickstart.js
+   ```
+
+2. **ES Module Example**: `examples/esm-example.mjs`
+   ```bash
+   npm run test:esm
+   # or
+   node examples/esm-example.mjs
+   ```
+
+3. **TypeScript Example**: `examples/typescript-example.ts`
+   ```bash
+   npm run test:ts
+   # or
+   npx tsx examples/typescript-example.ts
+   ```
+
+4. **Run All Examples**:
+   ```bash
+   npm run test:both
+   ```
+
+All examples will generate WAV files that you can play to hear the generated FT8 signals.
 
 ## Troubleshooting
 

@@ -1,9 +1,13 @@
 // Node.js comprehensive test program corresponding to ft8_lib/test/test.c
 // Tests message encoding/decoding and WAV file decoding
 
-const ft8 = require('../index.js');
-const fs = require('fs');
-const path = require('path');
+import { MessageEncoder, MessageDecoder, Utils } from '../index.mjs';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Test configuration - matching the C test arrays
 const CALLSIGNS = ["YL3JG", "W1A", "W1A/R", "W5AB", "W8ABC", "DE6ABC", "DE6ABC/R", "DE7AB", "DE9A", "3DA0X", "3DA0XYZ", "3DA0XYZ/R", "3XZ0AB", "3XZ0A"];
@@ -24,8 +28,8 @@ function TEST_END(testName) {
 
 class FT8ComprehensiveTest {
     constructor() {
-        this.encoder = new ft8.MessageEncoder();
-        this.decoder = new ft8.MessageDecoder();
+        this.encoder = new MessageEncoder();
+        this.decoder = new MessageDecoder();
         this.totalTests = 0;
         this.passedTests = 0;
         this.failedTests = 0;
@@ -49,7 +53,7 @@ class FT8ComprehensiveTest {
                 sampleRate: 12000,
                 frequency: 1500,
                 protocol: 'FT8',
-                amplitude: 0.5
+                symbolBt: 2.0
             });
             CHECK(audioBuffer && audioBuffer.samples && audioBuffer.samples.length > 0, "Audio generation failed");
             
@@ -110,7 +114,7 @@ class FT8ComprehensiveTest {
             }
             
             // Load and decode WAV file
-            const audioBuffer = ft8.Utils.Audio.loadWav(wavPath);
+            const audioBuffer = await Utils.Audio.loadWav(wavPath);
             console.log(`  📊 Sample rate: ${audioBuffer.sampleRate}Hz, Duration: ${(audioBuffer.samples.length / audioBuffer.sampleRate).toFixed(1)}s`);
             
             const decodedMessages = this.decoder.decode(audioBuffer);
@@ -280,7 +284,7 @@ class FT8ComprehensiveTest {
 }
 
 // Run tests if this file is executed directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     const test = new FT8ComprehensiveTest();
     test.runAllTests().catch(error => {
         console.error('Test execution failed:', error);
@@ -288,4 +292,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = FT8ComprehensiveTest;
+export default FT8ComprehensiveTest;

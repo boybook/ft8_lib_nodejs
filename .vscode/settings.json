@@ -1,0 +1,10 @@
+{
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "typescript.suggest.autoImports": true,
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.format.enable": true,
+  "typescript.validate.enable": true,
+  "javascript.validate.enable": true,
+  "javascript.suggest.autoImports": true,
+  "typescript.suggest.includeCompletionsForModuleExports": true
+}
