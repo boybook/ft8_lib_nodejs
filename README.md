@@ -47,7 +47,7 @@ npm install ft8-lib
 ### Build from Source
 
 ```bash
-git clone https://github.com/your-repo/ft8_lib_nodejs.git
+git clone https://github.com/boybook/ft8_lib_nodejs.git
 cd ft8_lib_nodejs
 git submodule update --init --recursive
 npm install
