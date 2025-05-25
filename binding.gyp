@@ -37,11 +37,26 @@
           "defines": [
             "_WIN32_WINNT=0x0600"
           ],
-          "msvs_settings": {
-            "VCCLCompilerTool": {
-              "ExceptionHandling": 1
-            }
-          }
+          "conditions": [
+            ["target_arch=='x64' and CC=='gcc'", {
+              # MinGW配置
+              "cflags_cc": [
+                "-std=c++20",
+                "-fexceptions"
+              ],
+              "cflags_c": [
+                "-std=c99"
+              ]
+            }, {
+              # MSVC配置
+              "msvs_settings": {
+                "VCCLCompilerTool": {
+                  "ExceptionHandling": 1,
+                  "AdditionalOptions": ["/std:c++20"]
+                }
+              }
+            }]
+          ]
         }],
         ["OS=='mac'", {
           "xcode_settings": {

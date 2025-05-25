@@ -161,14 +161,13 @@ void MessageDecoder::InitializeMonitor(int sample_rate) {
         monitor_free(&monitor_);
     }
     
-    monitor_config_t config = {
-        .f_min = freq_min_,
-        .f_max = freq_max_,
-        .sample_rate = sample_rate,
-        .time_osr = time_osr_,
-        .freq_osr = freq_osr_,
-        .protocol = protocol_
-    };
+    monitor_config_t config;
+    config.f_min = freq_min_;
+    config.f_max = freq_max_;
+    config.sample_rate = sample_rate;
+    config.time_osr = time_osr_;
+    config.freq_osr = freq_osr_;
+    config.protocol = protocol_;
     
     monitor_init(&monitor_, &config);
     monitor_initialized_ = true;
@@ -275,10 +274,9 @@ Napi::Value MessageDecoder::Decode(const Napi::CallbackInfo& info) {
     int num_candidates = ftx_find_candidates(&monitor_.wf, max_candidates_, candidates, min_score_);
     
     // Setup hash interface
-    ftx_callsign_hash_interface_t hash_if = {
-        .lookup_hash = HashTableLookup,
-        .save_hash = HashTableSave
-    };
+    ftx_callsign_hash_interface_t hash_if;
+    hash_if.lookup_hash = HashTableLookup;
+    hash_if.save_hash = HashTableSave;
     
     // Decode messages
     std::vector<Napi::Object> decoded_messages;
@@ -386,10 +384,9 @@ Napi::Value MessageDecoder::DecodeCandidate(const Napi::CallbackInfo& info) {
     ProcessAudio(samples.Data(), samples.ElementLength(), sample_rate);
     
     // Setup hash interface
-    ftx_callsign_hash_interface_t hash_if = {
-        .lookup_hash = HashTableLookup,
-        .save_hash = HashTableSave
-    };
+    ftx_callsign_hash_interface_t hash_if;
+    hash_if.lookup_hash = HashTableLookup;
+    hash_if.save_hash = HashTableSave;
     
     // Decode the specific candidate
     ftx_message_t message;
