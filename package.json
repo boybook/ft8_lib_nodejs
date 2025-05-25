@@ -8,7 +8,7 @@
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build",
     "build": "node-pre-gyp build",
-    "rebuild": "node-pre-gyp rebuild",
+    "rebuild": "node-pre-gyp rebuild && npm run move-binary",
     "clean": "node-pre-gyp clean",
     "configure": "node-pre-gyp configure",
     "package": "node-pre-gyp package",
@@ -16,7 +16,8 @@
     "info": "node-pre-gyp info",
     "test": "node test/test.mjs",
     "demo": "node examples/quickstart.mjs",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "move-binary": "node scripts/move-binary.js"
   },
   "keywords": [
     "ft8",
