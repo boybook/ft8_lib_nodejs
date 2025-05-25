@@ -32,7 +32,6 @@
         "NAPI_DISABLE_CPP_EXCEPTIONS"
       ],
       "libraries": [],
-      "product_dir": "<(module_root_dir)/lib/binding/Release/",
       "conditions": [
         ["OS=='win'", {
           "defines": [
