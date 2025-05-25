@@ -15,9 +15,7 @@
     "testpackage": "node-pre-gyp testpackage",
     "info": "node-pre-gyp info",
     "test": "node test/test.mjs",
-    "test:esm": "node examples/quickstart.mjs",
-    "test:both": "npm run test && npm run test:esm",
-    "prepublishOnly": "npm run test:both",
+    "demo": "node examples/quickstart.mjs",
     "prepack": "npm run build"
   },
   "keywords": [

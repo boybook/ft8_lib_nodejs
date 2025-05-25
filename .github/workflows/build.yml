@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Publish
 
 on:
   push:
@@ -73,7 +73,7 @@ jobs:
       run: npm run rebuild
 
     - name: Run tests
-      run: npm run test:both
+      run: npm run test
 
     - name: Package binary
       if: matrix.node-version == 18
