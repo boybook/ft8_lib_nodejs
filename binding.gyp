@@ -35,11 +35,21 @@
       "conditions": [
         ["OS=='win'", {
           "defines": [
-            "_WIN32_WINNT=0x0600"
+            "_WIN32_WINNT=0x0600",
+            "_CRT_SECURE_NO_WARNINGS",
+            "__STDC_NO_VLA__=0"
           ],
+          # MSVC配置 (默认Windows配置)
+          "msvs_settings": {
+            "VCCLCompilerTool": {
+              "ExceptionHandling": 1,
+              "AdditionalOptions": ["/std:c++20", "/Zc:__cplusplus"]
+            }
+          },
+          "cflags_cc": ["/std:c++20"],
+          # MinGW配置 (如果使用GCC则会添加)
           "conditions": [
-            ["target_arch=='x64' and CC=='gcc'", {
-              # MinGW配置
+            ["\"<!@(node -p \"process.env.CC || ''\")\"==\"gcc\"", {
               "cflags_cc": [
                 "-std=c++20",
                 "-fexceptions"
@@ -47,14 +57,6 @@
               "cflags_c": [
                 "-std=c99"
               ]
-            }, {
-              # MSVC配置
-              "msvs_settings": {
-                "VCCLCompilerTool": {
-                  "ExceptionHandling": 1,
-                  "AdditionalOptions": ["/std:c++20"]
-                }
-              }
             }]
           ]
         }],
@@ -98,11 +100,19 @@
       "defines": [
         "LOG_LEVEL=0"
       ],
+      "cflags": [
+        "-std=c99"
+      ],
       "conditions": [
         ["OS=='win'", {
           "defines": [
             "_CRT_SECURE_NO_WARNINGS"
-          ]
+          ],
+          "msvs_settings": {
+            "VCCLCompilerTool": {
+              "AdditionalOptions": ["/std:c11", "/Zc:preprocessor"]
+            }
+          }
         }]
       ]
     }
